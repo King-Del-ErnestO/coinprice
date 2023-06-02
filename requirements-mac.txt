@@ -17,6 +17,8 @@ psutil >= 5.9.4
 websocket-client>=0.59.0
 websockets>=9.1
 flask
+requests
+mss
 python-telegram-bot>=13.7
 tradingview-ta
 bottleneck
