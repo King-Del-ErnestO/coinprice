@@ -1,8 +1,9 @@
-# cryptobot on Binance, Coinbase
+# coinpricemonitor
 
-```sh
-git clone https://github.com/CryoportFinance/cryptobot
-cd cryptobot
+## Project Setup
+
+Run the following commands in the shell:
+```
 pip install -r requirements-mac.txt
 python websvc.py
 ```
