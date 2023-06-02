@@ -22,6 +22,8 @@ python-telegram-bot>=13.7
 tradingview-ta
 bottleneck
 dash
+requests
+mss
 dash-daq
 dash-bootstrap-components
 codespell
