@@ -896,7 +896,6 @@ class PublicAPI(AuthAPIBase):
         """Retrieves exchange markets 24hr stats"""
 
         try:
-            print(self.auth_api("GET", "products/stats"))
             return self.auth_api("GET", "products/stats")
         except Exception:
             return pd.DataFrame()

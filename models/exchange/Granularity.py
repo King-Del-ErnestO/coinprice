@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class Granularity(Enum):
+    ONE_MILLISECOND = 1, "1ms", "1millis", "1millisecond"
+    FIVE_MILLISECONDS = 5, "5ms", "5millis", "5milliseconds"
+    TEN_MILLISECONDS = 10, "10ms", "10millis", "10milliseconds"
     ONE_MINUTE = 60, "1m", "1min", "1T"
     FIVE_MINUTES = 300, "5m", "5min", "5T"
     FIFTEEN_MINUTES = 900, "15m", "15min", "15T"

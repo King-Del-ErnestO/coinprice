@@ -9,6 +9,7 @@ from models.exchange.binance import PublicAPI as BPublicAPI
 from models.exchange.coinbase_pro import PublicAPI as CPublicAPI
 from models.exchange.kucoin import PublicAPI as KPublicAPI
 
+
 def header() -> str:
     return """
     <!doctype html>
@@ -55,6 +56,11 @@ def is_coinbase_market_valid(market: str) -> bool:
         return True
     return False
 
+def is_kucoin_market_valid(market: str) -> bool:
+    p = re.compile(r"^[A-Z0-9-]{2,20}$")
+    if p.match(market):
+        return True
+    return False
 
 class Pages:
     def __init__(self) -> None:
@@ -87,7 +93,7 @@ class Pages:
                 <tr>
                     <th scope="row">3</th>
                     <td style="border-left: 1px solid #000;">
-                        <a class="text-dark" href="/kucoin">KuCoin</a>
+                        <a class="text-dark" href="/kucoin">Kucoin</a>
                     </td>
                 </tr>
             </tbody>
@@ -267,6 +273,7 @@ class Pages:
 
         {footer()}
         """
+
     @staticmethod
     def kucoin_markets() -> str:
         def markets():
@@ -274,77 +281,76 @@ class Pages:
 
             api = KPublicAPI()
             resp = api.get_markets_24hr_stats()
-            for market in resp["data"]["ticker"]:
-                if market["last"] > market["buy"]:
+            for market in resp['data']['ticker']:
+                if '-' in market["changeRate"]:
+
                     html += f"""
-                    <tr>
-                        <th class="table-success" scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
-                        <td class="table-success">{market['buy']}</td>
-                        <td class="table-success">{market['sell']}</td>
-                        <td class="table-success" style="border-left: 1px solid #000;">{market['changeRate']}%</td>
-                        <td class="table-success">{market['high']}</td>
-                        <td class="table-success">{market['low']}</td>
-                        <td class="table-success">{market['last']}</td>
-                        <td class="table-success">{market['vol']}</td>
-                    </tr>
-                    """
-                elif market["last"] < market["buy"]:
+                                <tr>
+                                    <th class="table-danger" scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
+                                    <td class="table-danger" style="border-left: 1px solid #000;">{market['changeRate']}%</td>
+                                    <td class="table-danger">{market['averagePrice']}</td>
+                                    <td class="table-danger">{market['high']}</td>
+                                    <td class="table-danger">{market['low']}</td>
+                                    <td class="table-danger">{market['last']}</td>
+                                    <td class="table-danger">{market['vol']}</td>
+                                </tr>
+                                """
+                elif market["changeRate"] == '0':
                     html += f"""
-                    <tr>
-                        <th class="table-danger" scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
-                        <td class="table-success">{market['buy']}</td>
-                        <td class="table-success">{market['sell']}</td>
-                        <td class="table-danger" style="border-left: 1px solid #000;">{market['changeRate']}%</td>
-                        <td class="table-success">{market['high']}</td>
-                        <td class="table-success">{market['low']}</td>
-                        <td class="table-success">{market['last']}</td>
-                        <td class="table-success">{market['vol']}</td>
-                    </tr>
-                    """
+                                <tr>
+                                    <th scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
+                                    <td style="border-left: 1px solid #000;">{market['changeRate']}%</td>
+                                    <td>{market['averagePrice']}</td>
+                                    <td>{market['high']}</td>
+                                    <td>{market['low']}</td>
+                                    <td>{market['last']}</td>
+                                    <td>{market['vol']}</td>
+                                </tr>
+                                """
                 else:
+
                     html += f"""
-                    <tr>
-                        <th scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
-                        <td class="table-success">{market['buy']}</td>
-                        <td class="table-success">{market['sell']}</td>
-                        <td style="border-left: 1px solid #000;">{market['changeRate']}%</td>
-                        <td class="table-success">{market['high']}</td>
-                        <td class="table-success">{market['low']}</td>
-                        <td class="table-success">{market['last']}</td>
-                        <td class="table-success">{market['vol']}</td>
-                    </tr>
-                    """
+                                <tr>
+                                    <th class="table-success" scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
+                                    <td class="table-success" style="border-left: 1px solid #000;">{market['changeRate']}%</td>
+                                    <td class="table-success">{market['averagePrice']}</td>
+                                    <td class="table-success">{market['high']}</td>
+                                    <td class="table-success">{market['low']}</td>
+                                    <td class="table-success">{market['last']}</td>
+                                    <td class="table-success">{market['vol']}</td>
+                                </tr>
+                                """
 
             return html
 
         return f"""
-        {header()}
+                    {header()}
 
-        <h4>Kucoin</h4>
-        <table id="markets" class="table table-sm table-light table-hover">
-            <thead>
-                <th scope="col">Market</th>
-                <th scope="col" style="border-left: 1px solid #000;">Buy</th>
-                <th scope="col">Sell</th>
-                <th scope="col">ChangeRate</th>
-                <th scope="col">High</th>
-                <th scope="col">Low</th>
-                <th scope="col">Last</th>
-                <th scope="col">Volume (24h)</th>
-            </thead>
-            <tbody>
-                {markets()}
-            </tbody>
-        </table>
+                    <h4>Kucoin</h4>
+                    <table id="markets" class="table table-sm table-light table-hover">
+                        <thead>
+                            <th scope="col">Market</th>
+                            <th scope="col" style="border-left: 1px solid #000;">Change (24hr)</th>
+                            <th scope="col">Average Price (24h)</th>
+                            <th scope="col">High (24h)</th>
+                            <th scope="col">Low (24h)</th>
+                            <th scope="col">Close (24h)</th>
+                            <th scope="col">Volume (24h)</th>
+                        </thead>
+                        <tbody>
+                            {markets()}
+                        </tbody>
+                    </table>
 
-        <br />
-        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-        <a class="text-dark" href='/kucoin'><button class="btn btn-success me-md-2" type="button">Refresh</button></a>
-        <a class="text-dark" href='/'><button class="btn btn-dark me-md-2" type="button">Go Back</button></a>
-        </div>
+                    <br />
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a class="text-dark" href='/kucoin'><button class="btn btn-success me-md-2" type="button">Refresh</button></a>
+                    <a class="text-dark" href='/'><button class="btn btn-dark me-md-2" type="button">Go Back</button></a>
+                    </div>
 
-        {footer()}
-        """
+                    {footer()}
+                    """
+
 
     @staticmethod
     def technical_analysis(exchange: str, market: str, g1, g2, g3) -> str:
@@ -371,7 +377,16 @@ class Pages:
                 {footer()}
                 """
         elif exchange == "kucoin":
-            pass
+            if not is_kucoin_market_valid(market):
+                return f"""
+                {header()}
+                <h4>Invalid Market!</h4>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a class="text-dark" href='/{exchange}'><button class="btn btn-primary me-md-2" type="button">Go Back</button></a>
+                </div>
+                {footer()}
+                """
         else:
             return "Invalid Exchange!"
 
@@ -381,45 +396,43 @@ class Pages:
             api = CPublicAPI()
         if exchange == "kucoin":
             api = KPublicAPI()
-        print(1)
+
         ticker = api.get_ticker(market)
-        print(2)
 
-        ta = TechnicalAnalysis(api.get_historical_data(market, g1, None))
-        print(3)
-
+        if exchange == 'kucoin':
+            ta = TechnicalAnalysis(api.get_historical_data(market, g1, None),len(api.get_historical_data(market, g1, None)))
+            ta1 = TechnicalAnalysis(api.get_historical_data(market, g2, None),len(api.get_historical_data(market, g2, None)))
+            ta2 = TechnicalAnalysis(api.get_historical_data(market, g3, None),len(api.get_historical_data(market, g3, None)))
+        else:
+            ta = TechnicalAnalysis(api.get_historical_data(market, g1, None))
+            ta1 = TechnicalAnalysis(api.get_historical_data(market, g2, None))
+            ta2 = TechnicalAnalysis(api.get_historical_data(market, g3, None))
         ta.add_all()
-        print(4)
-
         df_15m = ta.get_df()
-        print(5)
         df_15m_last = df_15m.tail(1)
-        print(6)
 
-        ta = TechnicalAnalysis(api.get_historical_data(market, g2, None))
-        print(7)
-        ta.add_all()
-        print(8)
-        df_1h = ta.get_df()
-        print(9)
+        ta1.add_all()
+        df_1h = ta1.get_df()
         df_1h_last = df_1h.tail(1)
 
-        print(10)
-        ta = TechnicalAnalysis(api.get_historical_data(market, g3, None))
-        print(1)
-        ta.add_all()
-        print(1)
-        df_6h = ta.get_df()
-        print(1)
+        ta2.add_all()
+        df_6h = ta2.get_df()
         df_6h_last = df_6h.tail(1)
 
-        print(1)
         if exchange == "binance":
             exchange_name = "Binance"
         elif exchange == "coinbasepro":
             exchange_name = "Coinbase Pro"
         elif exchange == "kucoin":
             exchange_name = "Kucoin"
+            df_15m_last.loc[:, 'sma200'] = df_15m_last['sma50']
+            df_15m_last.loc[:, 'sma50'] = df_15m_last['sma20']
+            df_1h_last.loc[:, 'sma200'] = df_1h_last['sma50']
+            df_1h_last.loc[:, 'sma50'] = df_1h_last['sma20']
+            df_6h_last.loc[:, 'sma200'] = df_6h_last['sma50']
+            df_6h_last.loc[:, 'sma50'] = df_6h_last['sma20']
+
+
 
         rsi14_15m_class = "table-normal"
         rsi14_15m_desc = "Uneventful"
@@ -557,7 +570,7 @@ class Pages:
             adx14_6h_desc = "Weak Trend Up"
 
         def arima_predictions(even_rows: bool = True):
-            results_ARIMA = ta.seasonal_arima_model()
+            results_ARIMA = ta2.seasonal_arima_model()
             start_date = df_1h.last_valid_index()
             end_date = start_date + datetime.timedelta(days=3)
             arima_pred = results_ARIMA.predict(
@@ -662,12 +675,13 @@ class Pages:
                             <th scope="col" style="width: 30%">SMA200</th>
                             <th scope="col" style="width: 40%">Status</th>
                         </thead>
-                        <tbody>
-                            <tr class="{'table-success' if df_15m_last['sma50'].values[0] > df_15m_last['sma200'].values[0] else 'table-danger'}">
-                                <td>{'%.08f' % round(df_15m_last['sma50'].values[0], 8)}</td>
-                                <td>{'%.08f' % round(df_15m_last['sma200'].values[0], 8)}</td>
-                                <td>{'SMA50 > SMA200' if df_15m_last['sma50'].values[0] > df_15m_last['sma200'].values[0] else 'SMA50 <= SMA200'}</td>
-                            </tr>
+                        <tbody>                                
+                                <tr class="{'table-success' if df_15m_last['sma50'].values[0] > df_15m_last['sma200'].values[0] else 'table-danger'}
+                                
+                                    <td>{'%.08f' % round(df_15m_last['sma50'].values[0], 8)}</td>
+                                    <td>{'%.08f' % round(df_15m_last['sma200'].values[0], 8)}</td>
+                                    <td>{'SMA50 > SMA200' if df_15m_last['sma50'].values[0] > df_15m_last['sma200'].values[0] else 'SMA50 <= SMA200'}</td>
+                                </tr>
                         </tbody>
                     </table>
                 </div>

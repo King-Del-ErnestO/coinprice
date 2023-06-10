@@ -40,11 +40,11 @@ def coinbasepro():
 def coinbasepro_market(market):
     return Pages.technical_analysis('coinbasepro', market, 900, 3600, 21600)
 
-
 @app.route("/kucoin")
-def kucoinpro():
+def kucoin():
     return Pages.kucoin_markets()
 
+
 @app.route("/kucoin/<market>")
-def kucoinpro_market(market):
-    return Pages.technical_analysis('kucoin', market, 900, 3600, 21600)
+def kucoin_market(market):
+    return Pages.technical_analysis('kucoin', market, Granularity.FIFTEEN_MINUTES, Granularity.ONE_HOUR, Granularity.SIX_HOURS)

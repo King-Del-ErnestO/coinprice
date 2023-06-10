@@ -969,7 +969,6 @@ class PublicAPI(AuthAPIBase):
             raise TypeError("Kucoin market required.")
 
         # validates granularity is an integer
-
         if not isinstance(granularity.to_medium, str):
             raise TypeError("Granularity string required.")
 
@@ -1007,19 +1006,19 @@ class PublicAPI(AuthAPIBase):
                     startTime = int(datetime.timestamp(datetime.strptime(iso8601start, "%Y-%m-%dT%H:%M:%S")))
                     resp = self.auth_api(
                         "GET",
-                        f"api/v1/market/candles?type={granularity.to_medium}&symbol={market}&startAt={startTime}",
+                        f"api/v1/market/candles?type={granularity.to_medium}&symbol={market}&startAt={startTime}&limit=300",
                     )
                 elif iso8601start != "" and iso8601end != "":
                     startTime = int(datetime.timestamp(datetime.strptime(iso8601start, "%Y-%m-%dT%H:%M:%S")))
                     endTime = int(datetime.timestamp(datetime.strptime(iso8601end, "%Y-%m-%dT%H:%M:%S")))
                     resp = self.auth_api(
                         "GET",
-                        f"api/v1/market/candles?type={granularity.to_medium}&symbol={market}&startAt={startTime}&endAt={endTime}",
+                        f"api/v1/market/candles?type={granularity.to_medium}&symbol={market}&startAt={startTime}&endAt={endTime}&limit=300",
                     )
                 else:
                     resp = self.auth_api(
                         "GET",
-                        f"api/v1/market/candles?type={granularity.to_medium}&symbol={market}",
+                        f"api/v1/market/candles?type={granularity.to_medium}&symbol={market}&limit=300",
                     )
 
                 if "code" in resp and resp["code"] != "200000":
