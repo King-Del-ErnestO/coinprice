@@ -59,5 +59,5 @@ if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", http_port))
 
-    # pyright: reportUndefinedVariable=false
+    # p yright: reportUndefinedVariable=false
     app.run(host=http_host, port=port, debug=args.debug)  # noqa: F821

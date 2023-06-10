@@ -7,7 +7,7 @@ import datetime
 from models.Trading import TechnicalAnalysis
 from models.exchange.binance import PublicAPI as BPublicAPI
 from models.exchange.coinbase_pro import PublicAPI as CPublicAPI
-
+from models.exchange.kucoin import PublicAPI as KPublicAPI
 
 def header() -> str:
     return """
@@ -82,6 +82,12 @@ class Pages:
                     <th scope="row">2</th>
                     <td style="border-left: 1px solid #000;">
                         <a class="text-dark" href="/coinbasepro">Coinbase Pro</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">3</th>
+                    <td style="border-left: 1px solid #000;">
+                        <a class="text-dark" href="/kucoin">KuCoin</a>
                     </td>
                 </tr>
             </tbody>
@@ -261,6 +267,84 @@ class Pages:
 
         {footer()}
         """
+    @staticmethod
+    def kucoin_markets() -> str:
+        def markets():
+            html = ""
+
+            api = KPublicAPI()
+            resp = api.get_markets_24hr_stats()
+            for market in resp["data"]["ticker"]:
+                if market["last"] > market["buy"]:
+                    html += f"""
+                    <tr>
+                        <th class="table-success" scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
+                        <td class="table-success">{market['buy']}</td>
+                        <td class="table-success">{market['sell']}</td>
+                        <td class="table-success" style="border-left: 1px solid #000;">{market['changeRate']}%</td>
+                        <td class="table-success">{market['high']}</td>
+                        <td class="table-success">{market['low']}</td>
+                        <td class="table-success">{market['last']}</td>
+                        <td class="table-success">{market['vol']}</td>
+                    </tr>
+                    """
+                elif market["last"] < market["buy"]:
+                    html += f"""
+                    <tr>
+                        <th class="table-danger" scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
+                        <td class="table-success">{market['buy']}</td>
+                        <td class="table-success">{market['sell']}</td>
+                        <td class="table-danger" style="border-left: 1px solid #000;">{market['changeRate']}%</td>
+                        <td class="table-success">{market['high']}</td>
+                        <td class="table-success">{market['low']}</td>
+                        <td class="table-success">{market['last']}</td>
+                        <td class="table-success">{market['vol']}</td>
+                    </tr>
+                    """
+                else:
+                    html += f"""
+                    <tr>
+                        <th scope="row"><a class="text-dark" href="/kucoin/{market['symbol']}">{market['symbol']}</a></th>
+                        <td class="table-success">{market['buy']}</td>
+                        <td class="table-success">{market['sell']}</td>
+                        <td style="border-left: 1px solid #000;">{market['changeRate']}%</td>
+                        <td class="table-success">{market['high']}</td>
+                        <td class="table-success">{market['low']}</td>
+                        <td class="table-success">{market['last']}</td>
+                        <td class="table-success">{market['vol']}</td>
+                    </tr>
+                    """
+
+            return html
+
+        return f"""
+        {header()}
+
+        <h4>Kucoin</h4>
+        <table id="markets" class="table table-sm table-light table-hover">
+            <thead>
+                <th scope="col">Market</th>
+                <th scope="col" style="border-left: 1px solid #000;">Buy</th>
+                <th scope="col">Sell</th>
+                <th scope="col">ChangeRate</th>
+                <th scope="col">High</th>
+                <th scope="col">Low</th>
+                <th scope="col">Last</th>
+                <th scope="col">Volume (24h)</th>
+            </thead>
+            <tbody>
+                {markets()}
+            </tbody>
+        </table>
+
+        <br />
+        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+        <a class="text-dark" href='/kucoin'><button class="btn btn-success me-md-2" type="button">Refresh</button></a>
+        <a class="text-dark" href='/'><button class="btn btn-dark me-md-2" type="button">Go Back</button></a>
+        </div>
+
+        {footer()}
+        """
 
     @staticmethod
     def technical_analysis(exchange: str, market: str, g1, g2, g3) -> str:
@@ -286,6 +370,8 @@ class Pages:
                 </div>
                 {footer()}
                 """
+        elif exchange == "kucoin":
+            pass
         else:
             return "Invalid Exchange!"
 
@@ -293,27 +379,47 @@ class Pages:
             api = BPublicAPI()
         if exchange == "coinbasepro":
             api = CPublicAPI()
+        if exchange == "kucoin":
+            api = KPublicAPI()
+        print(1)
         ticker = api.get_ticker(market)
+        print(2)
 
         ta = TechnicalAnalysis(api.get_historical_data(market, g1, None))
+        print(3)
+
         ta.add_all()
+        print(4)
+
         df_15m = ta.get_df()
+        print(5)
         df_15m_last = df_15m.tail(1)
+        print(6)
 
         ta = TechnicalAnalysis(api.get_historical_data(market, g2, None))
+        print(7)
         ta.add_all()
+        print(8)
         df_1h = ta.get_df()
+        print(9)
         df_1h_last = df_1h.tail(1)
 
+        print(10)
         ta = TechnicalAnalysis(api.get_historical_data(market, g3, None))
+        print(1)
         ta.add_all()
+        print(1)
         df_6h = ta.get_df()
+        print(1)
         df_6h_last = df_6h.tail(1)
 
+        print(1)
         if exchange == "binance":
             exchange_name = "Binance"
         elif exchange == "coinbasepro":
             exchange_name = "Coinbase Pro"
+        elif exchange == "kucoin":
+            exchange_name = "Kucoin"
 
         rsi14_15m_class = "table-normal"
         rsi14_15m_desc = "Uneventful"

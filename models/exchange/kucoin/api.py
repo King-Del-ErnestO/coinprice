@@ -969,6 +969,7 @@ class PublicAPI(AuthAPIBase):
             raise TypeError("Kucoin market required.")
 
         # validates granularity is an integer
+
         if not isinstance(granularity.to_medium, str):
             raise TypeError("Granularity string required.")
 
